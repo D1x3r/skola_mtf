@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Áno / Nie Test (30 náhodných otázok)</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #121a2a;
+      --muted: #8ea0c2;
+      --text: #e9efff;
+      --border: rgba(255,255,255,.10);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --ok: #2ecc71;
+      --bad: #ff4d4f;
+      --warn: #f7b731;
+      --btn: #1b2740;
+      --btnHover: #223154;
+      --focus: rgba(122,162,247,.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 10%, rgba(122,162,247,.18), transparent 60%),
+                  radial-gradient(900px 500px at 80% 20%, rgba(46,204,113,.10), transparent 55%),
+                  radial-gradient(1000px 700px at 50% 100%, rgba(255,77,79,.08), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      background: rgba(11, 15, 25, .65);
+      border-bottom: 1px solid var(--border);
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 16px;
+    }
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: .2px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--btn);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,.22);
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    button:hover { background: var(--btnHover); }
+    button:active { transform: translateY(1px); }
+    button:focus { outline: none; box-shadow: 0 0 0 4px var(--focus), 0 6px 16px rgba(0,0,0,.22); }
+    button.primary {
+      border-color: rgba(122,162,247,.55);
+      background: rgba(122,162,247,.18);
+    }
+    button.danger {
+      border-color: rgba(255,77,79,.55);
+      background: rgba(255,77,79,.14);
+    }
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    main .wrap { padding-top: 16px; padding-bottom: 40px; }
+
+    .summary {
+      display: none;
+      margin: 14px 0 18px;
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 42, .8);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .summary.show { display: block; }
+    .summaryHead {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .summaryHead .title { font-weight: 800; }
+    .pill {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(255,255,255,.03);
+    }
+    .summaryGrid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 14px 16px 16px;
+    }
+    @media (max-width: 900px) {
+      .summaryGrid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .stat .k { color: var(--muted); font-size: 12px; }
+    .stat .v { font-size: 20px; font-weight: 900; margin-top: 6px; }
+    .v.ok { color: var(--ok); }
+    .v.bad { color: var(--bad); }
+    .v.warn { color: var(--warn); }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(18, 26, 42, .72);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .cardHeader {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+      color: var(--text);
+    }
+    .qwrap { flex: 1 1 auto; }
+    .question {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .meta {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .meta .correctAnswer {
+      display: none;
+      font-weight: 800;
+    }
+    .cardBody {
+      padding: 12px 16px 16px;
+    }
+    .choices {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .choice {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      padding: 10px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 800;
+      font-size: 13px;
+      transition: transform .08s ease, border-color .15s ease, background .15s ease;
+    }
+    .choice:hover { border-color: rgba(255,255,255,.22); }
+    .choice:active { transform: translateY(1px); }
+    .choice.selected {
+      border-color: rgba(122,162,247,.65);
+      background: rgba(122,162,247,.18);
+    }
+
+    .card.incorrect {
+      border-color: rgba(255,77,79,.55);
+      background: rgba(255,77,79,.10);
+    }
+    .card.correct {
+      border-color: rgba(46,204,113,.45);
+      background: rgba(46,204,113,.08);
+    }
+    .card.unanswered {
+      border-color: rgba(247,183,49,.35);
+      background: rgba(247,183,49,.06);
+    }
+    .card.incorrect .num { border-color: rgba(255,77,79,.55); background: rgba(255,77,79,.10); }
+    .card.correct .num { border-color: rgba(46,204,113,.45); background: rgba(46,204,113,.10); }
+    .card.unanswered .num { border-color: rgba(247,183,49,.35); background: rgba(247,183,49,.10); }
+
+    .card.graded .meta .correctAnswer { display: inline; }
+    .correctAnswer .yes { color: var(--ok); }
+    .correctAnswer .no { color: var(--bad); }
+
+    .footerBar {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      padding-bottom: 40px;
+    }
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Test: Áno / Nie (30 náhodných otázok)</h1>
+        <div class="subtitle">Bodovanie: správne +1, nesprávne -1, neodpovedané 0</div>
+      </div>
+      <div class="actions">
+		<button id="showBadBtn" title="Zobrazí všetky zle/neodpovedané zo všetkých testov (do refreshu)">Zobraziť zle zodpovedané</button>
+                <button id="wrongOnlyBtn" title="Vygeneruje test iba zo zle/neodpovedaných otázok (zo zoznamu nižšie)">Test iba zo zlých</button>
+        <button id="allOnlyBtn" title="Vygeneruje test zo všetkých otázok">Test zo všetkých</button>
+<button id="resetBtn" class="danger" title="Vymaže odpovede a vygeneruje nový set 30 otázok">Reset / Nový test</button>
+        <button id="gradeBtn" class="primary" title="Vyhodnotí test a zvýrazní nesprávne">Ohodnotiť test</button>
+      </div>
+    </div>
+
+    <div id="summary" class="summary">
+      <div class="summaryHead">
+        <div class="title">Výsledok</div>
+        <div class="pill" id="percentPill">—</div>
+      </div>
+      <div class="summaryGrid">
+        <div class="stat"><div class="k">Správne</div><div class="v ok" id="sCorrect">0</div></div>
+        <div class="stat"><div class="k">Nesprávne</div><div class="v bad" id="sWrong">0</div></div>
+        <div class="stat"><div class="k">Neodpovedané</div><div class="v warn" id="sSkip">0</div></div>
+        <div class="stat"><div class="k">Body</div><div class="v" id="sPoints">0</div></div>
+        <div class="stat"><div class="k">Percentuálna správnosť</div><div class="v" id="sPercent">0%</div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div id="list" class="list"></div>
+	<div id="badBank" class="summary" style="display:none; margin-top:16px;">
+	  <div class="summaryHead">
+		<div class="title">Zle / Neodpovedané (uložené do refreshu)</div>
+		<div class="pill" id="badCountPill">0 položiek</div>
+	  </div>
+	  <div style="padding:14px 16px 16px;">
+		<div id="badBankList" class="list"></div>
+	  </div>
+	</div>
+    <div class="footerBar">
+      <button id="gradeBtn2" class="primary">Ohodnotiť test</button>
+    </div>
+    <div class="hint">Tip: Ak chceš meniť odpovede po vyhodnotení, daj Reset / Nový test.</div>
+  </div>
+</main>
+
+<script>
+/**
+ * Otázky + správne odpovede sú PRESNE podľa dokumentu (Áno / Nie).
+ * UI ponúka Áno / Nie / Neodpovedať.
+ */
+const ALL_QUESTIONS = [{"q": "Middle-CASE – prostriedky, ktoré sa používajú v etape špecifikácie požiadaviek a ich analýzy;", "a": "Nie"}, {"q": "Middle-CASE – prostriedky pre prechod medzi etapou špecifikácie a návrhu", "a": "Áno"}, {"q": "Pre-CASE - prostriedky, ktoré sa používajú v etape prevádzky systému a jeho údržby.", "a": "Nie"}, {"q": "Pre-CASE sú prostriedky pre prechod medzi etapou špecifikácie a návrhu", "a": "Nie"}, {"q": "Post-CASE sú prostriedky, ktoré sa používajú v etape špecifikácie požiadaviek a ich analýzy", "a": "Nie"}, {"q": "Post-CASE sú prostriedky, ktoré sa používajú v etape prevádzky systému a jeho údržby.", "a": "Áno"}, {"q": "Upper-CASE – prostriedky, ktoré sa používajú v etape špecifikácie požiadaviek a ich analýzy", "a": "Áno"}, {"q": "Lower-CASE sú prostriedky na podporu implementácie a testovania", "a": "Áno"}, {"q": "CASE prostriedky sa podľa šírky a rozsahu podpory delia na: špecifické a všeobecné prostriedky", "a": "Áno"}, {"q": "Case prostriedky sa podľa podpory metodik delia na : reštruktívne a flexibilné.", "a": "Áno"}, {"q": "Case prostriedky sa podľa podpory metodik delia na : reštriktívne, napodobňujúce a flexibilné.", "a": "Nie"}, {"q": "UC je vždy popisovaný z pohľadu účastníka", "a": "Áno"}, {"q": "Use Case je vždy iniciovanie účastníkom", "a": "Áno"}, {"q": "Je pravda že pri relácii include (UseCase diagram v UML) je základný prípad použitia bez rozšírenia kompletný?", "a": "Nie"}, {"q": "Kontextovým diagramom sa nazýva vrcholový UseCase diagram", "a": "Nie"}, {"q": "Štruktúrová analýza obsahuje DFD, dat. slovník, rozvrh. tabuľky, stromy, ER", "a": "Nie"}, {"q": "Štruktúrová analýza obsahuje DFD, dat. slovník, rozvrh. tabuľky, stromy", "a": "Áno"}, {"q": "Medzi najpoužívanejšie funkčné modely systému patria diagramy dátových tokov (DFD).", "a": "Áno"}, {"q": "Štruktúrovaná analýza zahŕňa tieto metódy a zdroje : DFD, ER modelovanie, dátový slovník, rozhod. tabuľku.", "a": "Nie"}, {"q": "Základné prvky DFD sú process, tok údajov, úložisko údajov a rozhranie k prostrediu.", "a": "Áno"}, {"q": "Pomocou DFD sa modelujú základné funkcie SW: entity, relácie a funkcie.", "a": "Nie"}, {"q": "UML je nezávislý od programovacích jazykov", "a": "Áno"}, {"q": "V UML vytvorený model nemusí obsahovať všetky diagramy", "a": "Áno"}, {"q": "V UML vytvorený model musí obsahovať všetky diagramy.", "a": "Nie"}, {"q": "Medzi statické modely UML patria: diagram tried, diagram komponent a diagramy nasadenia.", "a": "Áno"}, {"q": "UML je grafický jazyk pre špecifikáciu, vizualizáciu, vytváranie a dokumentáciu softvérového produktu", "a": "Áno"}, {"q": "UML je programovací jazyk pre špecifikáciu, vizualizáciu, vytváranie a dokumentáciu softvérového produktu", "a": "Nie"}, {"q": "Diagram aktivít  môžeme ho použiť pre zápis jednotlivých krokov scenára prípadu použitia", "a": "Áno"}, {"q": "Diagram aktivít nezobrazuje zjednodušený pohľad na jednotlivých krokov operácie alebo procesy.", "a": "Nie"}, {"q": "Diagram aktivít zobrazuje zjednodušený prehľad jednotlivých krokov operácie alebo procesu.", "a": "Áno"}, {"q": "Objekt predstavuje základnú entitu výpočtu dát, ktorá v sebe neuchováva dáta", "a": "Nie"}, {"q": "Objekt predstavuje základnú entitu výpočtu, ktorá v sebe uchováva dáta, ktoré určujú jej stav v každom časovom okamihu", "a": "Áno"}, {"q": "Každý objekt ma svoju identitu, kt. sa odlišuje od ostatných objektov", "a": "Áno"}, {"q": "Každý vytvorený objekt patrí každej triede", "a": "Nie"}, {"q": "Každý vytvorený objekt patrí práve jednej triede", "a": "Áno"}, {"q": "Medzi objektami ktoré sa poznajú nie sú väzby", "a": "Nie"}, {"q": "Medzi objektami ktoré sa poznajú existujú väzby/spojenia", "a": "Áno"}, {"q": "Stav objektu je daný jeho podmienkami operácií.", "a": "Nie"}, {"q": "Objekt je základnou entitou softvérového produktu, ktorý určuje jeho stav v krátkom časovom okamihu.", "a": "Nie"}, {"q": "Všetky objekty jednej triedy používajú rovnaké operácie", "a": "Áno"}, {"q": "Agregovaný objekt môže potenciálne existovať bez svojich čiastkových objektov, ale platí, že jedna trieda je časťou druhej triedy.", "a": "Nie"}, {"q": "Kompozitný objekt existuje bez svojich komponent", "a": "Nie"}, {"q": "Kompozitný objekt neexistuje bez svojich komponent", "a": "Áno"}, {"q": "Odvodene atribúty je možné vypočítať z inej triedy", "a": "Nie"}, {"q": "Odvodene atribúty je možné vypočítať z iného atribútu", "a": "Áno"}, {"q": "Primárny kľúč je atribút, alebo skupina atribútov , ktorá jednoznačne identifikuje entitu.", "a": "Áno"}, {"q": "Poznáme tri základné typy atribútov: štandardné, vypočítavanie, štruktúrované typy", "a": "Áno"}, {"q": "Tri základné typy atribútov sú : štandardné, vypočítavacie a štruktúrované", "a": "Áno"}, {"q": "Atribút určuje niektorú podstatnú vlastnosť entity.", "a": "Áno"}, {"q": "Primárny kľúč (PK) atribút, alebo skupina atribútov, ktorá jednoznačne identifikuje entitu.", "a": "Áno"}, {"q": "Je pravda že treba identifikovať atribúty ktorých hodnoty sa často menia?", "a": "Áno"}, {"q": "Je pravda že neindexujeme často meniace sa atribúty?", "a": "Áno"}, {"q": "Je pravda že primárny kľuč je výhradne samostatný atribút, ktorý jednoznačne identifikuje?", "a": "Nie"}, {"q": "Je pravda že relácie ERM nemôžu mať vlastné atribúty?", "a": "Nie"}, {"q": "Pre odvodený atribút je možné hodnotu vždy vypočítať z hodnoty inej triedy.", "a": "Nie"}, {"q": "Dedenie predstavuje mechanizmus zdieľanie atribútov, relácií a funkcií medzi triedami", "a": "Áno"}, {"q": "Doména je množina dovolených hodnôt atribútu.", "a": "Áno"}, {"q": "Atribút je funkcia, ktorá zobrazuje množinu entít do domény.", "a": "Áno"}, {"q": "Každá entita je popísaná množinou párov (atribút, hodnota)", "a": "Áno"}, {"q": "atribúty triedy sa stávajú riadkami tabuľky;", "a": "Nie"}, {"q": "atribúty triedy sa stávajú stĺpcami tabuľky;", "a": "Áno"}, {"q": "Relácie nemôžu mať vlastné atribúty.", "a": "Nie"}, {"q": "Je pravda že relácia je v druhej normálovej forme, ak je 1NF a každý kľúčový atribút je plne závislý na primárnom kľučí?", "a": "Nie"}, {"q": "Je pravda, že relácia je v druhej normálovej forme, ak je v 1NF každý nekľúčový atribút je plne závislý na primárnom kľučí.", "a": "Áno"}, {"q": "Relácia EXTEND je vzťah medzi prípadmi použitia, keď jeden prípad použitia obsahuje chovanie.", "a": "Nie"}, {"q": "Relácia INCLUDE je vzťah medzi prípadmi použitia, keď jeden prípad použitia obsahuje chovanie.", "a": "Áno"}, {"q": "Množina entít je množina relácií toho istého typu.", "a": "Nie"}, {"q": "Každá množina entít je reprezentovaná množinou relácií", "a": "Nie"}, {"q": "Relácia vyjadruje vzťah medzi rôznymi triedami", "a": "Nie"}, {"q": "Relácia vyjadruje vzťah medzi množinami entít", "a": "Áno"}, {"q": "Medzi modely vývoja SW patria prototyping, špirálový model, reverseengineering, cocurentengineering.", "a": "Áno"}, {"q": "Reverse engineering -znamená použitie novo navrhnutého modelu.", "a": "Nie"}, {"q": "Reverse engineering znamená použitie predchádzajúceho modelu.", "a": "Áno"}, {"q": "Software Engineering je inžinierska disciplína, ktorá sa zaoberá princípmi, metódami, nástrojmi a ľudskými zdrojmi, pre plánovanie, vývoj, používanie a vykonávanie údržby softvéru v priemyselných podmienkach.", "a": "Áno"}, {"q": "Concurrent Engineering je model postupu, ktorý predpokladá časovú paralelu medzi jednotlivými fázami.", "a": "Áno"}, {"q": "Concurrent Engineering je model postupu, ktorý umožňuje okamžite analyzovať a odstraňovať novovznikajúce problémy v procese vývoja softvérového produktu.", "a": "Áno"}, {"q": "Operácia triedy je operácia, ktorá je priradená príslušnej triede a nie jednotlivému objektu triedy.", "a": "Áno"}, {"q": "Medzi operácie patria: objektové , konštruktorové a operácie triedy", "a": "Áno"}, {"q": "Operácie sa členia na: relačné operácie, všeobecné operácie a operácie triedy", "a": "Nie"}, {"q": "Operácia je funkcia, ktorá je poskytnutá všetkým inštanciám triedy; zavádza správanie sa objektu.", "a": "Áno"}, {"q": "Objektové operácie sa aplikujú vždy na jednotlivý ( už existujúci ) objekt.", "a": "Áno"}, {"q": "Operácie, ktoré umožňujú vytvoriť nové objekty jednej triedy označujeme ako operácie triedy", "a": "Nie"}, {"q": "Polymorfizmus znamená, že premenná môže patriť práve jednej operácií.", "a": "Nie"}, {"q": "Je pravda že operáciach je funkcia ktorá je poskytnutá všetkým inštanciám triedy?", "a": "Áno"}, {"q": "Medzi modely vývoja softvéru patri vodopádový= kaskádový", "a": "Áno"}, {"q": "Softvér je materiálnej podstaty a nepodlieha opotrebeniu.", "a": "Nie"}, {"q": "Softvér je nemateriálnej podstaty a nepodlieha opotrebeniu.", "a": "Áno"}, {"q": "Softvér je zbierka počítačových programov, procedúr, pravidiel a s nimi spojenou dokumentáciou.", "a": "Áno"}, {"q": "Softvérový proces je proces dizajnového softvéru.", "a": "Nie"}, {"q": "Softvérový proces  je Proces, zahrňujúci technické aspekty a aspekty manažmentu vývoja softvéru.", "a": "Áno"}, {"q": "Softvérový produkt je ešte neúplný súbor PC programov, postupov, súvisiacej dokumentácie a údajov určených pre dodávateľov.", "a": "Nie"}, {"q": "Účastníci softvérového procesu sú : podporný personál, podnikateľ, návrhár.", "a": "Nie"}, {"q": "Účastníci softvérového procesu sú: používateľ, analytic, návrhár, programátor, odborníci pre údržbu a testovanie, podporný personál, manažment a audítor.", "a": "Áno"}, {"q": "Údržba softvéru je verifikácie softvérového výrobku po odovzdaní", "a": "Nie"}, {"q": "Dynamické testovanie je s úplnou databázou", "a": "Áno"}, {"q": "Dynamické testovanie je test objektu triedy softvéru s plnou databázou", "a": "Nie"}, {"q": "Alfa a Beta testovanie systému prebieha v reálnom prostredí", "a": "Áno"}, {"q": "Alfa a Beta testovanie systému prebieha vo vývojárskej firme", "a": "Nie"}, {"q": "Pri ALFA testovaní sa systém testuje so živými dátami.", "a": "Nie"}, {"q": "Nezávislé testy sú vykonávané odborníkmi na údržbu.", "a": "Nie"}, {"q": "Preberacie testovanie je prvý míľnik pre testovanie projektu.", "a": "Nie"}, {"q": "Testovanie je posledný míľnik softvérového projektu.", "a": "Áno"}, {"q": "Testovanie SW úlohou testov nie je vyhľadávať a opravovať chyby v čo najkratšom čase.", "a": "Nie"}, {"q": "Statické testovanie je testovanie bez operačného systému", "a": "Nie"}, {"q": "Beta testovanie používa reálne dáta bez sledovania výsledkov", "a": "Nie"}, {"q": "Inštalačné testy zahrňujú všeobecnú výkonnosť systému, ktorý je prvýkrát nainštalovaný na novom OS", "a": "Áno"}, {"q": "Integračné testy je testovanie modulov systému oddelene.", "a": "Nie"}, {"q": "Integračné testy je testovanie viacerých modelov súčasne.", "a": "Áno"}, {"q": "Nezávislé testy sú vykonávané nezávislými externými skupinami", "a": "Áno"}, {"q": "Je pravda že asociačná trieda nemôže byť asociovaná s ďalšou triedou?", "a": "Nie"}, {"q": "Asociačná trieda môže mať asociáciu s ľubovoľnou inou triedou.", "a": "Áno"}, {"q": "Asociácia je podobnosť prípadov použitia.", "a": "Nie"}, {"q": "Asociácia  vyjadruje vzťah medzi rôznymi triedami", "a": "Áno"}, {"q": "Je pravda že DISTINCT spôsobí že sa zamedzia duplicitné hodnoty vo výsledkovej množine?", "a": "Áno"}, {"q": "Je pravda že databázový trigger v PL/SQL sa spúšťa automaticky, ak dôjde k vykonaniu spúšťacieho príkazu SQL-DML?", "a": "Áno"}, {"q": "Je pravda že pohľady (View) obsahujú dáta z jednotlivých tabuliek databázy v závislosti na vytvorenej podmienke v klauzule where?", "a": "Áno"}, {"q": "Je pravda že je pravda že 2.Normálová forma rieši problém Funkčnej závislosti?", "a": "Áno"}, {"q": "Je pravda že INDEX .... explicitne zrušil úplné prehľadanie tabuľky?", "a": "Áno"}, {"q": "Je pravda že pri RMD v tabuľke nemôžu existovať dva identické riadky?", "a": "Áno"}, {"q": "Je pravda že generalizácia existuje len medzi triedami, neprenáša sa na ich inštancie.", "a": "Nie"}, {"q": "Je pravda že operátor AND má vyššiu prioritu ako aritmetické operátory pri poradí vykonávania v SQL príkazoch Select?", "a": "Nie"}, {"q": "Je pravda že medzi výhody štruktúrovanej analýzy a designu radíme aj to že dátový a funkcionálny model môžu byť na počiatku analýzy vytvárané nezávisle na sebe?", "a": "Áno"}, {"q": "Je pravda že riaditeľnosť ukazuje že je možne z ľubovoľného objektu cieľovej triedy riadiť jeden alebo viacej objektov zdrojovej triedy v závislosti na následnosti?", "a": "Nie"}, {"q": "Vo fáze plánovania sa určuje katalóg požiadaviek.", "a": "Nie"}, {"q": "Vo fáze návrhu sa z logického modelu konštruuje kontextový diagram.", "a": "Nie"}, {"q": "Katalóg požiadaviek je prvý dokument, ktorý vznikne po fáze plánovania", "a": "Áno"}, {"q": "Vo fáze plánovania je potrebné určiť čas od kedy do kedy som schopný produkt realizovať.", "a": "Áno"}, {"q": "Katalóg požiadaviek je neúplný popis požiadaviek nového SW produktu", "a": "Nie"}, {"q": "Katalóg požiadaviek je úplný popis požiadaviek nového SW produktu", "a": "Áno"}, {"q": "V OO svete ....( nejaký text )", "a": "Áno"}, {"q": "V OO svete ....množstvo atribútov..... ( nejaký text )", "a": "Nie"}, {"q": "Extend – vzťah medzi prípadmi použitia, keď jeden prípad použitia rozširuje svoje správanie pomocou jedného alebo viacerých fragmentov správania iného prípadu použitia", "a": "Áno"}, {"q": "Include – vzťah medzi prípadmi použitia, keď jeden prípad použitia obsahuje správanie iného prípadu použitia", "a": "Nie"}, {"q": "Soft. proces, patri tam- analytik, návrhár, programátor, odborník na údržbu, audítor", "a": "Áno"}, {"q": "Podpora metodik- reštriktívne, flexibilne", "a": "Áno"}, {"q": "Inkrementálny model sa nazýva aj validačný", "a": "Nie"}, {"q": "Inkrementálny model sa nazýva aj prírastkový", "a": "Áno"}, {"q": "Pri evolučnom modeli sú všetky požiadavky definované na začiatku", "a": "Nie"}, {"q": "Schéma dát je vlastne transformovaná Konceptuálna schéma.", "a": "Áno"}, {"q": "V životnom cykle programovaného diela predstavuje údržba záverečnú časť.", "a": "Áno"}, {"q": "Biela skrinka tester má prístup k zdrojovému kódu.", "a": "Áno"}, {"q": "Riaditeľnosť ukazuje, že je možné z ľubovoľného objektu zdrojovej triedy riadiť jeden alebo viacej objektov cieľovej triedy v závislosti na násobnosti.", "a": "Áno"}, {"q": "Klauzula HAVING v SQL, príkaze SELECT slúži na obmedzenie zoskupených riadkov?", "a": "Áno"}, {"q": "Vyberie nasledujúci SQL príkaz osoby s výškou 160?: SELECT priezvisko, meno FROM OSOBY where vyska>150 AND vyska<160;", "a": "Nie"}, {"q": "Dátový model tvoria logické jednotky dát a vzťahy medzi nimi.", "a": "Áno"}, {"q": "Prípad použitia (UC) je to, čo účastník od systému očakáva.", "a": "Áno"}, {"q": "Čierna skrinka je požiadavka zadávateľa na ukrytú funkciu systému.", "a": "Nie"}, {"q": "Workbench je súbor softvérových nástrojov.", "a": "Áno"}, {"q": "V OO svete špecifikuje trieda spoločné znaky množiny objektov s tými istými vlastnosťami, tým istým správaním a tými istými vzťahmi.", "a": "Áno"}, {"q": "Prípady použitia sú činnosti, ktoré môžu aktéri so systémom vykonávať", "a": "Áno"}, {"q": "Modul je logicky separovateľná časť programu.", "a": "Áno"}, {"q": "Modul je logicky spracovateľná časť triedy.", "a": "Nie"}, {"q": "Pri modelovaní nového systému je potrebné opísať štyri rôzne pohľady a ich vzájomné vzťahy: údaje, funkcie, dynamiku a užívateľský povrch", "a": "Áno"}, {"q": "Katalóg požiadaviek je detailný popis požiadaviek na softvérový produkt.", "a": "Áno"}, {"q": "Katalóg požiadaviek je detailný popis požiadaviek na vývojový tím softvéru.", "a": "Nie"}, {"q": "Presnosť ( verifikácia): process, ktorého cieľom je potvrdiť, že SW vyhovuje definovanej špecifikácií.", "a": "Áno"}, {"q": "Entita reprezentuje objekt reálneho sveta, ktorý je schopný nezávislej existencie, je odlíšený od ostatných objektov.", "a": "Áno"}, {"q": "Evolučný model sa s výhodou použije tam, kde zadávateľ svoje požiadavky nevie presne definovať.", "a": "Áno"}, {"q": "Statické diagramy patria: diagram tried, diagram komponentov, diagram nasadenia", "a": "Áno"}, {"q": "V OOP trieda charakterizuje množinu atribútov s rovnakým správaním a vzťahom k iným objektom.", "a": "Nie"}, {"q": "Objektový diagram opisuje objekty a ich prepojenia navzájom.", "a": "Áno"}, {"q": "Hlavným cieľom fázy plánovania je preskúmať, či sa uvažovaný produkt má (dá) vyvíjať.", "a": "Áno"}, {"q": "Pre grafické vyjadrenie dátového modelu sa najčastejšie používajú ER modely.", "a": "Áno"}, {"q": "Zovšeobecnenie je výsledok spojenia dvoch alebo viac operácii do jednej.", "a": "Nie"}, {"q": "Zovšeobecnenie je výsledok spojenia dvoch alebo viacerých množín entít do množiny entít vyššej úrovne.", "a": "Áno"}, {"q": "Špecializácia je výsledkom podmnožiny z množiny entít vyššej úrovne do množiny nižšej úrovne entít", "a": "Áno"}, {"q": "Fyzická schéma vzniká modifikáciou konceptuálnej schémy.", "a": "Nie"}];
+
+const TOTAL_PER_TEST = 30;
+
+// Režim testu: "all" (všetky otázky) alebo "wrong" (iba zlé/neodpovedané)
+let testMode = "all";
+
+// Stav
+let current = [];               // 30 vybraných otázok {q,a}
+let answers = new Map();        // index -> "Áno" | "Nie" | "Neodpovedať"
+let graded = false;
+
+// DOM
+// Uložené zlé + neodpovedané po jednotlivých testoch (iba do refreshu stránky)
+let badSessions = []; // každý záznam: { id, at, stats:{correct,wrong,skip,points,percent}, items:[{q, correct, picked}] }
+
+// DOM pre banku
+const showBadBtn = document.getElementById("showBadBtn");
+const wrongOnlyBtn = document.getElementById("wrongOnlyBtn");
+const allOnlyBtn = document.getElementById("allOnlyBtn");
+const badBankEl = document.getElementById("badBank");
+const badBankListEl = document.getElementById("badBankList");
+const badCountPill = document.getElementById("badCountPill");
+
+const listEl = document.getElementById("list");
+const summaryEl = document.getElementById("summary");
+
+const sCorrect = document.getElementById("sCorrect");
+const sWrong = document.getElementById("sWrong");
+const sSkip = document.getElementById("sSkip");
+const sPoints = document.getElementById("sPoints");
+const sPercent = document.getElementById("sPercent");
+const percentPill = document.getElementById("percentPill");
+
+const resetBtn = document.getElementById("resetBtn");
+const gradeBtn = document.getElementById("gradeBtn");
+const gradeBtn2 = document.getElementById("gradeBtn2");
+
+// Pomocné
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildWrongPool() {
+  // Zober všetky zlé + neodpovedané otázky zo všetkých testov,
+  // odstráň duplicity podľa presného textu otázky.
+  const map = new Map(); // q -> a (správna)
+  badSessions.forEach(session => {
+    (session.items || []).forEach(it => {
+      if (it && it.q && it.correct) map.set(it.q, it.correct);
+    });
+  });
+  return Array.from(map.entries()).map(([q, a]) => ({ q, a }));
+}
+
+function setMode(mode) {
+  testMode = mode;
+  if (testMode === "wrong") {
+    percentPill.textContent = "Režim: iba zlé";
+  } else {
+    percentPill.textContent = "Režim: všetky otázky";
+  }
+}
+
+function pickNewTest() {
+  const pool = (testMode === "wrong") ? buildWrongPool() : ALL_QUESTIONS;
+
+  if (testMode === "wrong" && pool.length === 0) {
+    alert("Zatiaľ nemáš žiadne uložené zlé/neodpovedané otázky. Najprv sprav test a ohodnoť ho.");
+    testMode = "all";
+    // fallback na všetky otázky
+    return pickNewTest();
+  }
+
+  // bezpečne: ak je v poole menej než 30, zober všetky
+  current = shuffle(pool).slice(0, Math.min(TOTAL_PER_TEST, pool.length));
+  answers = new Map();
+  graded = false;
+  render();
+  hideSummary();
+}
+
+
+function hideSummary() {
+  summaryEl.classList.remove("show");
+}
+
+function showSummary() {
+  summaryEl.classList.add("show");
+  summaryEl.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function normalizeChoice(choice) {
+  // UI používa Áno/Nie/Neodpovedať. Správne odpovede v dátach sú "Áno" alebo "Nie".
+  if (choice === "Áno" || choice === "Nie" || choice === "Neodpovedať") return choice;
+  return "Neodpovedať";
+}
+
+function render() {
+  // Reset UI
+  listEl.innerHTML = "";
+
+  // Nadpis podľa režimu
+  const h1 = document.querySelector("h1");
+  if (h1) {
+    h1.textContent = (testMode === "wrong")
+      ? "Test: Iba zlé/neodpovedané (max 30 náhodných)"
+      : "Test: Áno / Nie (30 náhodných otázok)";
+  }
+current.forEach((item, idx) => {
+    const chosen = answers.get(idx) || null;
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const header = document.createElement("div");
+    header.className = "cardHeader";
+
+    const num = document.createElement("div");
+    num.className = "num";
+    num.textContent = String(idx + 1);
+
+    const qwrap = document.createElement("div");
+    qwrap.className = "qwrap";
+
+    const q = document.createElement("p");
+    q.className = "question";
+    q.textContent = item.q; // PRESNE text otázky
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const status = document.createElement("span");
+    status.textContent = chosen ? `Odpoveď: ${chosen}` : "Odpoveď: —";
+    status.className = "status";
+
+    const ca = document.createElement("span");
+    ca.className = "correctAnswer";
+    // správna odpoveď PRESNE (Áno/Nie)
+    const isYes = item.a === "Áno";
+    ca.innerHTML = `Správne: <span class="${isYes ? "yes" : "no"}">${item.a}</span>`;
+
+    meta.appendChild(status);
+    meta.appendChild(ca);
+
+    qwrap.appendChild(q);
+    qwrap.appendChild(meta);
+
+    header.appendChild(num);
+    header.appendChild(qwrap);
+
+    const body = document.createElement("div");
+    body.className = "cardBody";
+
+    const choices = document.createElement("div");
+    choices.className = "choices";
+
+    ["Áno", "Nie", "Neodpovedať"].forEach(label => {
+      const btn = document.createElement("div");
+      btn.className = "choice" + (chosen === label ? " selected" : "");
+      btn.textContent = label;
+
+      btn.addEventListener("click", () => {
+        if (graded) return;
+        answers.set(idx, label);
+        render(); // jednoduchý re-render (30 otázok je OK)
+      });
+
+      choices.appendChild(btn);
+    });
+
+    body.appendChild(choices);
+
+    card.appendChild(header);
+    card.appendChild(body);
+
+    // ak je vyhodnotené, nastav farby
+    if (graded) {
+      card.classList.add("graded");
+      const picked = answers.get(idx) || "Neodpovedať";
+      const correct = item.a; // "Áno" alebo "Nie"
+
+      if (picked === "Neodpovedať") {
+        card.classList.add("unanswered");
+      } else if (picked === correct) {
+        card.classList.add("correct");
+      } else {
+        card.classList.add("incorrect");
+      }
+    }
+
+    listEl.appendChild(card);
+  });
+
+  // tlačidlá
+  gradeBtn.disabled = graded;
+  gradeBtn2.disabled = graded;
+}
+
+function renderBadBank() {
+  badBankListEl.innerHTML = "";
+
+  // počet všetkých uložených položiek (zlé + neodpovedané) naprieč testami
+  let totalItems = 0;
+  badSessions.forEach(s => { totalItems += s.items.length; });
+  badCountPill.textContent = `${badSessions.length} test(ov), ${totalItems} položiek`;
+
+  if (badSessions.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "card";
+    empty.innerHTML = `
+      <div class="cardHeader">
+        <div class="num">—</div>
+        <div class="qwrap">
+          <p class="question" style="margin:0;">Zatiaľ nemáš uložené žiadne zlé/neodpovedané otázky.</p>
+          <div class="meta" style="margin-top:6px;">Sprav test a klikni "Ohodnotiť test".</div>
+        </div>
+      </div>`;
+    badBankListEl.appendChild(empty);
+    return;
+  }
+
+  // najnovšie hore
+  const sessions = badSessions.slice().sort((a,b) => b.id - a.id);
+
+  sessions.forEach((session, sIdx) => {
+    const head = document.createElement("div");
+    head.className = "card";
+    head.style.borderColor = "rgba(255,255,255,.18)";
+    head.innerHTML = `
+      <div class="cardHeader">
+        <div class="num">${sessions.length - sIdx}</div>
+        <div class="qwrap">
+          <p class="question" style="margin:0;"><b>Test</b> — skóre: <b>${session.stats.points} bodov</b> • správne: ${session.stats.correct} • nesprávne: ${session.stats.wrong} • neodp.: ${session.stats.skip} • úspešnosť: ${session.stats.percent.toFixed(2)}%</p>
+          <div class="meta" style="margin-top:6px;">Uložené: ${session.at}</div>
+        </div>
+      </div>`;
+    badBankListEl.appendChild(head);
+
+    if (session.items.length === 0) {
+      const none = document.createElement("div");
+      none.className = "card correct";
+      none.innerHTML = `
+        <div class="cardHeader">
+          <div class="num">✓</div>
+          <div class="qwrap">
+            <p class="question" style="margin:0;">V tomto teste neboli žiadne zlé ani neodpovedané otázky.</p>
+          </div>
+        </div>`;
+      badBankListEl.appendChild(none);
+      return;
+    }
+
+    session.items.forEach((it, i) => {
+      const card = document.createElement("div");
+      card.className = "card incorrect graded";
+
+      const isYes = it.correct === "Áno";
+      card.innerHTML = `
+        <div class="cardHeader">
+          <div class="num">${i + 1}</div>
+          <div class="qwrap">
+            <p class="question">${it.q}</p>
+            <div class="meta">
+              <span>Odpoveď: ${it.picked}</span>
+              <span class="correctAnswer" style="display:inline;">
+                Správne:
+                <span class="${isYes ? "yes" : "no"}">${it.correct}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      `;
+      badBankListEl.appendChild(card);
+    });
+  });
+}
+
+
+
+function grade() {
+  if (graded) return;
+
+  let correct = 0;
+  let wrong = 0;
+  let skip = 0;
+  let points = 0;
+
+	current.forEach((item, idx) => {
+  const picked = normalizeChoice(answers.get(idx) || "Neodpovedať");
+
+  if (picked === "Neodpovedať") {
+    skip += 1;
+    return;
+  }
+
+  if (picked === item.a) {
+    correct += 1;
+    points += 1;
+  } else {
+    wrong += 1;
+    points -= 1;
+  }
+});
+const total = current.length;
+	const maxPoints = total;     // max je +1 za každú otázku
+	const minPoints = -total;    // min je -1 za každú otázku
+
+	// percentá z bodov: mapovanie <-total..+total> -> <0..100>
+const percentFromPoints =
+  (maxPoints === minPoints) ? 0 : ((points) / (maxPoints)) * 100;
+sCorrect.textContent = correct;
+	sWrong.textContent = wrong;
+	sSkip.textContent = skip;
+	sPoints.textContent = points;
+
+	sPercent.textContent = `${percentFromPoints.toFixed(2)}%`;
+	percentPill.textContent = `Úspešnosť (podľa bodov): ${percentFromPoints.toFixed(2)}%`;
+
+// Ulož zlé + neodpovedané pre tento test ako samostatnú sekciu
+const items = [];
+current.forEach((item, idx) => {
+  const picked = normalizeChoice(answers.get(idx) || "Neodpovedať");
+  if (picked === "Neodpovedať" || picked !== item.a) {
+    items.push({ q: item.q, correct: item.a, picked });
+  }
+});
+
+badSessions.push({
+  id: Date.now(),
+  at: new Date().toLocaleString('sk-SK'),
+  stats: { correct, wrong, skip, points, percent: percentFromPoints },
+  items
+});
+
+  graded = true;
+  render();
+  renderBadBank();
+  showSummary();
+}
+
+// Events
+wrongOnlyBtn.addEventListener("click", () => {
+  setMode("wrong");
+  pickNewTest();
+});
+
+allOnlyBtn.addEventListener("click", () => {
+  setMode("all");
+  pickNewTest();
+});
+
+resetBtn.addEventListener("click", pickNewTest);
+gradeBtn.addEventListener("click", grade);
+gradeBtn2.addEventListener("click", grade);
+showBadBtn.addEventListener("click", () => {
+  const isOpen = badBankEl.style.display !== "none";
+  badBankEl.style.display = isOpen ? "none" : "block";
+  renderBadBank();
+  if (!isOpen) badBankEl.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+
+// Init
+setMode("all");
+pickNewTest();
+</script>
+</body>
+</html>
